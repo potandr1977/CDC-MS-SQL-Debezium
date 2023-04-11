@@ -1,0 +1,92 @@
+version: '3.4'
+
+services:
+  mssql:
+    container_name: sql
+    image: mcr.microsoft.com/mssql/server
+    ports:
+      - 8002:1433
+    environment:
+      - SA_PASSWORD=admin132456798
+      - ACCEPT_EULA=Y
+    networks:
+     - cdcapinetwork
+
+  cdcapi:
+    container_name: cdcapi
+    image: ${DOCKER_REGISTRY-}cdcapi
+    build:
+      context: .
+      dockerfile: CdcApi/Dockerfile
+    environment:
+      - DB_HOST=mssql
+      - DB_NAME=CdcDb
+      - DB_SA_PASSWORD=admin132456798
+    depends_on:
+      - mssql
+    networks:
+     - cdcapinetwork
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    ports:
+      - "2181:2181"
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    depends_on:
+      - mssql
+    networks:
+     - cdcapinetwork
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    ports:
+      - "9093:9093"
+    container_name: kafka
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_CLEANER_DELETE_RETENTION_MS: 5000
+      KAFKA_BROKER_ID: 1
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+    depends_on:
+      - zookeeper
+      - mssql
+    networks:
+     - cdcapinetwork
+
+  kafdrop:
+    container_name: kafdrop
+    image: obsidiandynamics/kafdrop
+    restart: "no"
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka:9092"
+    networks:
+     - cdcapinetwork
+
+  connector:
+    image: debezium/connect:1.4
+    ports:
+      - "8083:8083"
+    container_name: connector
+    environment:
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: my_connect_configs
+      OFFSET_STORAGE_TOPIC: my_connect_offsets
+      BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      - mssql
+      - zookeeper
+      - kafka
+    networks:
+     - cdcapinetwork
+  
+networks:
+  cdcapinetwork:
+    #driver: bridge
