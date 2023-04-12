@@ -3,9 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CdcApi", "CdcApi\CdcApi.csproj", "{30A60E9B-B9B1-45F3-8CF6-C302BEC9CA19}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CdcApi", "CdcApi\CdcApi.csproj", "{30A60E9B-B9B1-45F3-8CF6-C302BEC9CA19}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{CBAC9B6F-0770-4D49-9111-1E27B9F3B670}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "prerequisites", "prerequisites", "{D3951155-62CB-4C1E-BA8F-91C63355332B}"
+	ProjectSection(SolutionItems) = preProject
+		ConnectorConfig.json = ConnectorConfig.json
+		EnableCDC.sql = EnableCDC.sql
+		Readme.txt = Readme.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -25,6 +25,11 @@ namespace CdcApi.Controllers
         [HttpPost]
         public void Post([FromBody] string value)
         {
+            var maxId = dbContext.Contracts.Max(x=>x.Id);
+            var contract = new Contract {Name=$"Name{maxId+1}" };
+
+            dbContext.Contracts.Add(contract);
+            dbContext.SaveChanges();
         }
     }
 }

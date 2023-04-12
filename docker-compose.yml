@@ -1,4 +1,5 @@
 version: '3.4'
+name: cdc-api-project
 
 services:
   mssql:
@@ -9,6 +10,7 @@ services:
     environment:
       - SA_PASSWORD=admin132456798
       - ACCEPT_EULA=Y
+      - MSSQL_AGENT_ENABLED=True
     networks:
      - cdcapinetwork
 
